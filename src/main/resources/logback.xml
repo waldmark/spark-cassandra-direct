@@ -12,17 +12,17 @@
 
     <appender name="SPARKOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%msg</pattern>
+            <pattern>>   %msg%n</pattern>
         </encoder>
     </appender>
 
-    <logger name="com.objectpartners.spark.rt911.common.components.SparkAnalysisWriter" additivity="false">
+    <logger name="com.objectpartners.spark.rt911.standalone.cassandra.SparkProcessor" additivity="false">
         <appender-ref ref="SPARKOUT" />
     </logger>
 
 
     <logger name="org.apache" level="OFF"/>
-    <logger name="org.apache.spark" level="OFF"/>
+    <logger name="org.apache.spark" level="INFO"/>
     <logger name="org.spark_project" level="OFF"/>
     <logger name="org.springframework" level="OFF"/>
 </configuration>

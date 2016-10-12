@@ -50,17 +50,30 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
+//    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.21'
     compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.7'
     compile group: 'org.springframework', name: 'spring-expression', version: '4.3.3.RELEASE'
     compile group: 'org.springframework', name: 'spring-context-support', version: '4.3.3.RELEASE'
     compile group: 'org.springframework', name: 'spring-beans', version: '4.3.3.RELEASE'
     compile group: 'org.springframework', name: 'spring-context', version: '4.3.3.RELEASE'
     compile group: 'org.springframework', name: 'spring-core', version: '4.3.3.RELEASE'
-    compile group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.0.0'
-    compile group: 'org.apache.spark', name: 'spark-sql_2.11', version: '2.0.0'
-    compile group: 'org.apache.spark', name: 'spark-streaming_2.11', version: '2.0.0'
-    compile group: 'org.apache.spark', name: 'spark-streaming-kafka-0-8_2.11', version: '2.0.0'
+//    compile group: 'org.apache.spark', name: 'spark-core_2.11', version: '2.0.0'
+//    compile group: 'org.apache.spark', name: 'spark-sql_2.11', version: '2.0.0'
+////    compile group: 'org.apache.spark', name: 'spark-streaming_2.11', version: '2.0.0'
+////    compile group: 'org.apache.spark', name: 'spark-streaming-kafka-0-8_2.11', version: '2.0.0'
+//    // https://mvnrepository.com/artifact/com.datastax.spark/spark-cassandra-connector_2.11
+////    compile group: 'com.datastax.spark', name: 'spark-cassandra-connector_2.11', version: '1.6.2'
+//    // https://mvnrepository.com/artifact/com.datastax.spark/spark-cassandra-connector-java_2.11
+//    compile group: 'com.datastax.spark', name: 'spark-cassandra-connector-java_2.11', version: '1.6.0-M1'
+//    // https://mvnrepository.com/artifact/com.datastax.spark/spark-cassandra-connector_2.11
+//    compile group: 'com.datastax.spark', name: 'spark-cassandra-connector_2.11', version: '2.0.0-M3'
+
+
+    // https://mvnrepository.com/artifact/org.apache.spark/spark-sql_2.10
+    compile group: 'org.apache.spark', name: 'spark-sql_2.10', version: '2.0.1'
+    compile group: 'com.datastax.spark', name: 'spark-cassandra-connector_2.10', version: '2.0.0-M3'
+    compile group: 'com.datastax.spark', name: 'spark-cassandra-connector-java_2.10', version: '1.6.0-M1'
+    compile group: 'org.apache.spark', name: 'spark-core_2.10', version: '2.0.1'
 }
 
 

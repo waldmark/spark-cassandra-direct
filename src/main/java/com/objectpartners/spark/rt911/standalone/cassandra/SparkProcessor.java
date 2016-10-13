@@ -1,11 +1,5 @@
 package com.objectpartners.spark.rt911.standalone.cassandra;
 
-import com.datastax.spark.connector.ColumnRef;
-import com.datastax.spark.connector.cql.TableDef;
-import com.datastax.spark.connector.japi.CassandraRow;
-import com.datastax.spark.connector.japi.rdd.CassandraTableScanJavaRDD;
-import com.datastax.spark.connector.rdd.reader.RowReader;
-import com.datastax.spark.connector.rdd.reader.RowReaderFactory;
 import com.objectpartners.spark.rt911.common.components.Map911Call;
 import com.objectpartners.spark.rt911.common.domain.RealTime911;
 import org.apache.spark.SparkConf;
@@ -15,7 +9,6 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import scala.Tuple2;
-import scala.collection.IndexedSeq;
 
 import java.io.Serializable;
 import java.util.List;
@@ -23,6 +16,9 @@ import java.util.ListIterator;
 
 import static com.datastax.spark.connector.japi.CassandraJavaUtil.javaFunctions;
 
+/**
+ * Spark batch processing of Cassandra data
+ */
 class SparkProcessor implements Serializable {
     static final long serialVersionUID = 100L;
     private static Logger LOG = LoggerFactory.getLogger(SparkProcessor.class);

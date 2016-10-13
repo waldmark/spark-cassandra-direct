@@ -1,4 +1,4 @@
-package com.objectpartners.spark.rt911.standalone.cassandra;
+package com.objectpartners.spark.rt911.analysis;
 
 import com.objectpartners.spark.rt911.common.components.Map911Call;
 import com.objectpartners.spark.rt911.common.domain.RealTime911;
@@ -19,12 +19,12 @@ import static com.datastax.spark.connector.japi.CassandraJavaUtil.javaFunctions;
 /**
  * Spark batch processing of Cassandra data
  */
-class SparkProcessor implements Serializable {
+public class SparkProcessor implements Serializable {
     static final long serialVersionUID = 100L;
     private static Logger LOG = LoggerFactory.getLogger(SparkProcessor.class);
 
 
-    void processFileData() {
+    public void processFileData() {
         // set execution configuration
         SparkConf conf = new SparkConf()
                 .setAppName("CassandraClient")
@@ -42,10 +42,10 @@ class SparkProcessor implements Serializable {
 
 //         *************************************************************************************************************
 //         sort by frequecy on cleansed data
-//         *************************************************************************************************************
+//         ************************ *************************************************************************************
 
-        JavaRDD<String> cleansedCallTypes = callData.map(x -> (
-                x.getCallType().replaceAll("\"", "").replaceAll("[-|,]", "")));
+        JavaRDD<String> cleansedCallTypes = callData.map( x -> (
+                 x.getCallType().replaceAll("\"", "").replaceAll("[-|,]", "")));
         // create pair for reduction
         JavaPairRDD<String, Integer> cpairs = cleansedCallTypes.mapToPair(s -> new Tuple2<>(s, 1)); // 1. create pairs
         JavaPairRDD<String, Integer> creduced = cpairs.reduceByKey((a, b) -> a + b); // 2. reduce by callType

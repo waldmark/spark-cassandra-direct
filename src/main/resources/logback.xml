@@ -16,7 +16,7 @@
         </encoder>
     </appender>
 
-    <logger name="com.objectpartners.spark.rt911.standalone.cassandra.SparkProcessor" additivity="false">
+    <logger name="com.objectpartners.spark.rt911.analysis.SparkProcessor" additivity="false">
         <appender-ref ref="SPARKOUT" />
     </logger>
 

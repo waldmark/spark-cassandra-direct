@@ -1,6 +1,9 @@
 package com.objectpartners.spark.rt911.analysis;
 
+import com.datastax.spark.connector.japi.CassandraJavaUtil;
+import com.datastax.spark.connector.japi.rdd.CassandraJavaRDD;
 import com.objectpartners.spark.rt911.common.components.Map911Call;
+import com.objectpartners.spark.rt911.common.domain.CallFrequency;
 import com.objectpartners.spark.rt911.common.domain.RealTime911;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
@@ -11,10 +14,11 @@ import org.slf4j.LoggerFactory;
 import scala.Tuple2;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import static com.datastax.spark.connector.japi.CassandraJavaUtil.javaFunctions;
+import static com.datastax.spark.connector.japi.CassandraJavaUtil.*;
 
 /**
  * Spark batch processing of Cassandra data
@@ -42,10 +46,10 @@ public class SparkProcessor implements Serializable {
 
 //         *************************************************************************************************************
 //         sort by frequecy on cleansed data
-//         ************************ *************************************************************************************
+//         *************************************************************************************************************
 
-        JavaRDD<String> cleansedCallTypes = callData.map( x -> (
-                 x.getCallType().replaceAll("\"", "").replaceAll("[-|,]", "")));
+        JavaRDD<String> cleansedCallTypes = callData.map(x -> (
+                x.getCallType().replaceAll("\"", "").replaceAll("[-|,]", "")));
         // create pair for reduction
         JavaPairRDD<String, Integer> cpairs = cleansedCallTypes.mapToPair(s -> new Tuple2<>(s, 1)); // 1. create pairs
         JavaPairRDD<String, Integer> creduced = cpairs.reduceByKey((a, b) -> a + b); // 2. reduce by callType
@@ -57,13 +61,46 @@ public class SparkProcessor implements Serializable {
         // get a list
         List<Tuple2<String, Integer>> cleansedList = xscounts.collect(); //6. get a List
 
-        LOG.info("\n\n==================================CLEANSED AND SORTED BY FREQUENCY=============================\n");
+        LOG.info("\n\n==================================CLEANSED AND SORTED BY FREQUENCY===========================\n");
 
+        List<CallFrequency> callFrequencyList = new ArrayList<>();
         ListIterator<Tuple2<String, Integer>> cleansedListIterator = cleansedList.listIterator(cleansedList.size());
-        while(cleansedListIterator.hasPrevious()){
+        while (cleansedListIterator.hasPrevious()) {
             Tuple2<String, Integer> r = cleansedListIterator.previous();
             LOG.info("(" + r._1 + ", " + r._2 + ")");
-        } // should combine some entries that were duplicates
+
+            // save each callType frequency
+            CallFrequency callFrequency = new CallFrequency();
+            callFrequency.setCalltype(r._1());
+            callFrequency.setCount(r._2());
+            callFrequencyList.add(callFrequency);
+        }
+
+        JavaRDD<CallFrequency> cfRDD = sc.parallelize(callFrequencyList);
+        javaFunctions(cfRDD)
+                .writerBuilder("testkeyspace", "calltypes", mapToRow(CallFrequency.class)).saveToCassandra();
+
+        // mapping Cassandra to a Java object with Cassandra java functions
+        JavaRDD<RealTime911> callRDD = javaFunctions(sc)
+                .cassandraTable("testkeyspace", "rt911", mapRowTo(RealTime911.class))
+                .select(
+                        column("id").as("incidenId"),
+                        column("address").as("address"),
+                        column("calltype").as("callType"),
+                        column("calltime").as("dateTime"),
+                        column("longitude").as("longitude"),
+                        column("latitude").as("latitude"),
+                        column("location").as("reportedLocation")
+                );
+
+        LOG.info("callRDD count = " + callRDD.count());
+
+        // filter by fire type
+        callRDD = callRDD.filter( c -> (c.getCallType().matches("(?i:.*\\bFire\\b.*)")));
+        LOG.info("callRDD count = " + callRDD.count());
+
+
+
     }
 
 }

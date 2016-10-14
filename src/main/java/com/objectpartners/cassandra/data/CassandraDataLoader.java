@@ -56,7 +56,12 @@ public class CassandraDataLoader {
                 + "latitude varchar,"
                 + "longitude varchar,"
                 + "location varchar,"
-                + "id varchar PRIMARY KEY,"
+                + "id varchar PRIMARY KEY"
+                + ");"
+        );
+        session.execute("CREATE TABLE testkeyspace.callTypes ("
+                + "count int,"
+                + "calltype varchar PRIMARY KEY"
                 + ");"
         );
     }
@@ -111,7 +116,6 @@ public class CassandraDataLoader {
         } catch (Exception e) {
             LOG.error(e.getMessage());
         }
-
     }
 
     private String[] parse(String line) {

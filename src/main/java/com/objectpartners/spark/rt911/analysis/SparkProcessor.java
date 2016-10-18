@@ -2,6 +2,7 @@ package com.objectpartners.spark.rt911.analysis;
 
 import com.datastax.spark.connector.japi.CassandraJavaUtil;
 import com.datastax.spark.connector.japi.rdd.CassandraJavaRDD;
+import com.objectpartners.aws.S3Client;
 import com.objectpartners.spark.rt911.common.components.Map911Call;
 import com.objectpartners.spark.rt911.common.domain.CallFrequency;
 import com.objectpartners.spark.rt911.common.domain.RealTime911;
@@ -28,7 +29,7 @@ public class SparkProcessor implements Serializable {
     private static Logger LOG = LoggerFactory.getLogger(SparkProcessor.class);
 
 
-    public void processFileData() {
+    public JavaRDD<RealTime911> processFileData() {
         // set execution configuration
         SparkConf conf = new SparkConf()
                 .setAppName("CassandraClient")
@@ -99,8 +100,8 @@ public class SparkProcessor implements Serializable {
         callRDD = callRDD.filter( c -> (c.getCallType().matches("(?i:.*\\bFire\\b.*)")));
         LOG.info("callRDD count = " + callRDD.count());
 
-
-
+        callData = callData.repartition(1);
+        return callData;
     }
 
 }

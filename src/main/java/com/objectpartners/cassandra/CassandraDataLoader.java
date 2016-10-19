@@ -29,9 +29,9 @@ public class CassandraDataLoader {
         Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
 
         Metadata metadata = cluster.getMetadata();
-        System.out.printf("Connected to cluster: %s\n", metadata.getClusterName());
+        LOG.info("Connected to cluster: %s\n", metadata.getClusterName());
         for (Host host : metadata.getAllHosts()) {
-            System.out.printf("Datatacenter: %s; Host: %s; Rack: %s \n",
+            LOG.info("Datatacenter: %s; Host: %s; Rack: %s \n",
                     host.getDatacenter(), host.getAddress(), host.getRack());
         }
 
@@ -78,7 +78,6 @@ public class CassandraDataLoader {
 //        String dataFileName = "Seattle_Real_Time_Fire_911_Calls_10_Test.csv.gz";
         String dataFileName = "Seattle_Real_Time_Fire_911_Calls_Chrono.csv.gz";
 
-        int i = 1;
         LOG.info("reading data from " + dataFileName);
         try {
             final InputStream is = CassandraDataLoader.class.getResourceAsStream("/"+dataFileName);
@@ -90,6 +89,7 @@ public class CassandraDataLoader {
 
             LOG.info("START DATA LOADING");
 
+            int i = 1;
             String line;
             while((line = br.readLine()) != null) {
                 // parse into values

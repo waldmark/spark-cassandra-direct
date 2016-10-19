@@ -1,4 +1,4 @@
-package com.objectpartners.spark.rt911.common.domain;
+package com.objectpartners.common.domain;
 
 import java.io.Serializable;
 

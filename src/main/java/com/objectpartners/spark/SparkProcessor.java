@@ -1,17 +1,15 @@
-package com.objectpartners.spark.rt911.analysis;
+package com.objectpartners.spark;
 
-import com.datastax.spark.connector.japi.CassandraJavaUtil;
-import com.datastax.spark.connector.japi.rdd.CassandraJavaRDD;
-import com.objectpartners.aws.S3Client;
-import com.objectpartners.spark.rt911.common.components.Map911Call;
-import com.objectpartners.spark.rt911.common.domain.CallFrequency;
-import com.objectpartners.spark.rt911.common.domain.RealTime911;
+import com.objectpartners.common.components.Map911Call;
+import com.objectpartners.common.domain.CallFrequency;
+import com.objectpartners.common.domain.RealTime911;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import scala.Tuple2;
 
 import java.io.Serializable;
@@ -24,12 +22,13 @@ import static com.datastax.spark.connector.japi.CassandraJavaUtil.*;
 /**
  * Spark batch processing of Cassandra data
  */
+@Component
 public class SparkProcessor implements Serializable {
     static final long serialVersionUID = 100L;
     private static Logger LOG = LoggerFactory.getLogger(SparkProcessor.class);
 
 
-    public JavaRDD<RealTime911> processFileData() {
+    List<RealTime911> processCassandraData() {
         // set execution configuration
         SparkConf conf = new SparkConf()
                 .setAppName("CassandraClient")
@@ -100,8 +99,8 @@ public class SparkProcessor implements Serializable {
         callRDD = callRDD.filter( c -> (c.getCallType().matches("(?i:.*\\bFire\\b.*)")));
         LOG.info("callRDD count = " + callRDD.count());
 
-        callData = callData.repartition(1);
-        return callData;
+        List<RealTime911> calls = callData.collect();
+        return calls;
     }
 
 }

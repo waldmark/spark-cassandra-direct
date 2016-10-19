@@ -1,8 +1,8 @@
-package com.objectpartners.spark.rt911.common.components;
+package com.objectpartners.common.components;
 
 
 import com.datastax.spark.connector.japi.CassandraRow;
-import com.objectpartners.spark.rt911.common.domain.RealTime911;
+import com.objectpartners.common.domain.RealTime911;
 import org.apache.spark.api.java.function.Function;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package com.objectpartners.cassandra.data;
+package com.objectpartners.cassandra;
 
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Host;
@@ -6,6 +6,7 @@ import com.datastax.driver.core.Metadata;
 import com.datastax.driver.core.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -17,6 +18,7 @@ import java.util.zip.GZIPInputStream;
  * Create Cassandra database and
  * loads demo data (911 calls) into Casandra
  */
+@Component
 public class CassandraDataLoader {
 
     private static Logger LOG = LoggerFactory.getLogger(CassandraDataLoader.class);

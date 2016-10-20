@@ -28,7 +28,7 @@ public class SparkProcessor implements Serializable {
     private static Logger LOG = LoggerFactory.getLogger(SparkProcessor.class);
 
 
-    List<RealTime911> processCassandraData() {
+    JavaPairRDD<String, RealTime911> processCassandraData() {
         // set execution configuration
         SparkConf conf = new SparkConf()
                 .setAppName("CassandraClient")
@@ -76,11 +76,12 @@ public class SparkProcessor implements Serializable {
             callFrequencyList.add(callFrequency);
         }
 
+        // write to Cassandra
         JavaRDD<CallFrequency> cfRDD = sc.parallelize(callFrequencyList);
         javaFunctions(cfRDD)
                 .writerBuilder("testkeyspace", "calltypes", mapToRow(CallFrequency.class)).saveToCassandra();
 
-        // mapping Cassandra to a Java object with Cassandra java functions
+        // read the data back to Java objects
         JavaRDD<RealTime911> callRDD = javaFunctions(sc)
                 .cassandraTable("testkeyspace", "rt911", mapRowTo(RealTime911.class))
                 .select(
@@ -99,8 +100,10 @@ public class SparkProcessor implements Serializable {
         callRDD = callRDD.filter( c -> (c.getCallType().matches("(?i:.*\\bFire\\b.*)")));
         LOG.info("callRDD count = " + callRDD.count());
 
-        List<RealTime911> calls = callData.collect();
-        return calls;
+        // group the data by date (MM/dd/yyyy)
+        MapByCallDate mapToTimeStamp = new MapByCallDate();
+
+        return callRDD.mapToPair(mapToTimeStamp);
     }
 
 }

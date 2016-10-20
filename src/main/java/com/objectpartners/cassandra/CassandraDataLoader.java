@@ -29,10 +29,11 @@ public class CassandraDataLoader {
         Cluster cluster = Cluster.builder().addContactPoint("127.0.0.1").build();
 
         Metadata metadata = cluster.getMetadata();
-        LOG.info("Connected to cluster: %s\n", metadata.getClusterName());
+        LOG.info("Connected to cluster: " + metadata.getClusterName());
         for (Host host : metadata.getAllHosts()) {
-            LOG.info("Datatacenter: %s; Host: %s; Rack: %s \n",
-                    host.getDatacenter(), host.getAddress(), host.getRack());
+            LOG.info("Datatacenter: " + host.getDatacenter()
+                            + " Host: " + host.getAddress()
+                            + " Rack: " + host.getRack() + "n");
         }
 
         session = cluster.connect();

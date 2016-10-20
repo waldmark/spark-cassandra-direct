@@ -11,6 +11,7 @@ import com.objectpartners.spark.SparkCassandraRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 
 @Configuration
 @ComponentScan(basePackages = {"com.objectpartners"})
@@ -49,6 +50,11 @@ public class SparkCassandraConfig {
     @Bean
     RealTime911 realTime911() {
         return new RealTime911();
+    }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer propertySourcesPlaceholderConfigurer() {
+        return new PropertySourcesPlaceholderConfigurer();
     }
 
 }

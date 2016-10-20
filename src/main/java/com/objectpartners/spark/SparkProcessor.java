@@ -91,31 +91,19 @@ public class SparkProcessor implements Serializable {
                 .writerBuilder("testkeyspace", "calltypes", mapToRow(CallFrequency.class)).saveToCassandra();
 
 //         *************************************************************************************************************
-//         read data from Casandra, filter for fire, group by call date, write to AWS S3
+//         filter data to 'Fire' events and group by event date
 //         *************************************************************************************************************
 
-        // read the rt911 data from Cassandra back to Java objects
-        JavaRDD<RealTime911> callRDD = javaFunctions(sc)
-                .cassandraTable("testkeyspace", "rt911", mapRowTo(RealTime911.class))
-                .select(
-                        column("id").as("incidenId"),
-                        column("address").as("address"),
-                        column("calltype").as("callType"),
-                        column("calltime").as("dateTime"),
-                        column("longitude").as("longitude"),
-                        column("latitude").as("latitude"),
-                        column("location").as("reportedLocation")
-                );
-        LOG.info("callRDD count = " + callRDD.count());
+        LOG.info("callRDD count = " + callData.count());
 
         // filter by fire type
-        callRDD = callRDD.filter( c -> (c.getCallType().matches("(?i:.*\\bFire\\b.*)")));
-        LOG.info("callRDD count = " + callRDD.count());
+        callData = callData.filter( c -> (c.getCallType().matches("(?i:.*\\bFire\\b.*)")));
+        LOG.info("callRDD count = " + callData.count());
 
         // group the data by date (MM/dd/yyyy)
         MapByCallDate mapToTimeStamp = new MapByCallDate();
 
-        return callRDD.mapToPair(mapToTimeStamp);
+        return callData.mapToPair(mapToTimeStamp);
     }
 
 }

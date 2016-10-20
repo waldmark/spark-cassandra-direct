@@ -29,13 +29,21 @@ public class SparkProcessor implements Serializable {
 
 
     JavaPairRDD<String, RealTime911> processCassandraData() {
-        // set execution configuration
+
+//         *************************************************************************************************************
+//         set up Spark context
+//         *************************************************************************************************************
+
         SparkConf conf = new SparkConf()
                 .setAppName("CassandraClient")
                 .setMaster("local")
                 .set("spark.executor.memory", "1g")
                 .set("spark.cassandra.connection.host", "127.0.0.1");
         JavaSparkContext sc = new JavaSparkContext(conf);
+
+//         *************************************************************************************************************
+//         read from Cassandra into Spark RDD
+//         *************************************************************************************************************
 
         // read the rt911 table and map to RealTime911 java objects
         // this custom mapping does not require the Cassandra columns
@@ -61,27 +69,32 @@ public class SparkProcessor implements Serializable {
         // get a list
         List<Tuple2<String, Integer>> cleansedList = xscounts.collect(); //6. get a List
 
-        LOG.info("\n\n==================================CLEANSED AND SORTED BY FREQUENCY===========================\n");
+//         *************************************************************************************************************
+//         save call frequency data to Casandra
+//         *************************************************************************************************************
 
         List<CallFrequency> callFrequencyList = new ArrayList<>();
+        // get list iterator that starts with last element
         ListIterator<Tuple2<String, Integer>> cleansedListIterator = cleansedList.listIterator(cleansedList.size());
-        while (cleansedListIterator.hasPrevious()) {
-            Tuple2<String, Integer> r = cleansedListIterator.previous();
-            LOG.info("(" + r._1 + ", " + r._2 + ")");
-
+        while (cleansedListIterator.hasPrevious()) { // iterate over list backwards, last to first
+            Tuple2<String, Integer> callCounts = cleansedListIterator.previous();
             // save each callType frequency
             CallFrequency callFrequency = new CallFrequency();
-            callFrequency.setCalltype(r._1());
-            callFrequency.setCount(r._2());
+            callFrequency.setCalltype(callCounts._1());
+            callFrequency.setCount(callCounts._2());
             callFrequencyList.add(callFrequency);
         }
 
-        // write to Cassandra
+        // write call frequency data to Cassandra
         JavaRDD<CallFrequency> cfRDD = sc.parallelize(callFrequencyList);
         javaFunctions(cfRDD)
                 .writerBuilder("testkeyspace", "calltypes", mapToRow(CallFrequency.class)).saveToCassandra();
 
-        // read the data back to Java objects
+//         *************************************************************************************************************
+//         read data from Casandra, filter for fire, group by call date, write to AWS S3
+//         *************************************************************************************************************
+
+        // read the rt911 data from Cassandra back to Java objects
         JavaRDD<RealTime911> callRDD = javaFunctions(sc)
                 .cassandraTable("testkeyspace", "rt911", mapRowTo(RealTime911.class))
                 .select(
@@ -93,7 +106,6 @@ public class SparkProcessor implements Serializable {
                         column("latitude").as("latitude"),
                         column("location").as("reportedLocation")
                 );
-
         LOG.info("callRDD count = " + callRDD.count());
 
         // filter by fire type
